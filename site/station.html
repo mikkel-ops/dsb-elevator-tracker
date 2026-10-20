@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Station – Hvor længe har elevatoren været ude af drift?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <nav class="top"><a href="./">Overblik</a><a href="arkiv.html">Arkiv</a><a href="./#metode">Metode</a></nav>
+  <header class="site">
+    <h1 id="title">Station</h1>
+    <p id="summary"></p>
+  </header>
+  <div class="card table-wrap" style="max-height: none">
+    <table>
+      <thead><tr><th>Enhed</th><th>Periode</th><th class="num">Varighed</th><th>DSB's forventede dato</th><th>Dokumentation</th></tr></thead>
+      <tbody id="incidents"></tbody>
+    </table>
+  </div>
+  <p class="sub" style="margin-top: 12px">Dokumentation viser DSB's side, som den så ud, første gang vi så hændelsen, og første gang den var væk igen. Screenshots tages, hver gang listen ændrer sig.</p>
+</main>
+<script type="module" src="station.js"></script>
+</body>
+</html>

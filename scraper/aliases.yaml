@@ -1,0 +1,19 @@
+# Manual fixes for DSB's free-text labels. Keys are matched case-insensitively
+# with whitespace collapsed.
+#
+# labels:   whole raw label -> rewritten label (applied first)
+# stations: extracted station name -> canonical station name
+
+labels:
+  "Køge nord St. Tugela spor 1 S-tog": "Køge Nord spor 1 S-tog"
+  "Køge nord St. Tugela spor 2 S-tog": "Køge Nord spor 2 S-tog"
+
+stations:
+  "Århus": "Aarhus H"
+  "Århus H": "Aarhus H"
+  "Aarhus": "Aarhus H"
+  "Hovedbanegården": "København H"
+  "København syd": "København Syd"
+  "Køge nord": "Køge Nord"
+  "Høje Tåstrup": "Høje Taastrup"
+  "Malmparken St.": "Malmparken"

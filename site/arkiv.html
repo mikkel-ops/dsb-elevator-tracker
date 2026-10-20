@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Arkiv – Hvor længe har elevatoren været ude af drift?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <nav class="top"><a href="./">Overblik</a><a href="arkiv.html">Arkiv</a><a href="./#metode">Metode</a></nav>
+  <header class="site">
+    <h1>Arkiv</h1>
+    <p>Hver hentning af DSB's side gemmes som rå HTML. Screenshots tages, når listen ændrer sig, og mindst én gang i døgnet. Vælg en dato for at se, hvad DSB oplyste.</p>
+  </header>
+  <p><label>Dato <input type="date" id="day"></label></p>
+  <div class="card table-wrap" style="max-height: none">
+    <table>
+      <thead><tr><th>Hentet</th><th class="num">Linjer</th><th>DSB "opdateret"</th><th>Rå HTML</th><th>Screenshot</th></tr></thead>
+      <tbody id="snapshots"></tbody>
+    </table>
+  </div>
+  <div id="preview" style="margin-top: 16px"></div>
+</main>
+<script type="module" src="arkiv.js"></script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+.pytest_cache/
+build/
+.DS_Store
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+infra/backend.hcl
