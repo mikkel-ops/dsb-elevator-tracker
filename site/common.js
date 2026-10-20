@@ -34,6 +34,8 @@ export const fmtDateTime = (iso) => (iso ? dateTimeFmt.format(new Date(iso)) : "
 
 /** "3 timer", "12 dage"; prefixed "mindst" when the start is unknown. */
 export function duration(days, lowerBound = false) {
+  // Unknown start and seen for under a day: any number would be misleading.
+  if (lowerBound && days < 1) return "nyopdaget";
   let s;
   if (days < 1) {
     const h = Math.max(1, Math.round(days * 24));

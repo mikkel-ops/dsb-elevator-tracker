@@ -8,6 +8,7 @@ meant to be edited by hand as new variants show up.
 
 from __future__ import annotations
 
+import json
 import re
 import unicodedata
 from dataclasses import dataclass
@@ -17,6 +18,7 @@ from pathlib import Path
 import yaml
 
 ALIASES_PATH = Path(__file__).with_name("aliases.yaml")
+STATIONS_PATH = Path(__file__).with_name("station_names.json")  # tools/build_stations.py
 
 # Where the station name ends and the platform/location description begins.
 _STATION_END = re.compile(
@@ -47,6 +49,27 @@ def _aliases() -> dict:
     }
 
 
+@lru_cache(maxsize=1)
+def _known_stations() -> list[str]:
+    """Known station names, longest first, so "København H" beats "København"."""
+    if not STATIONS_PATH.exists():
+        return []
+    return sorted(json.loads(STATIONS_PATH.read_text(encoding="utf-8")), key=len, reverse=True)
+
+
+_LEADING_ST = re.compile(r"^(?:st\.?|station)(?=\s|$|[,-])[\s,-]*", re.IGNORECASE)
+
+
+def _match_known(label: str) -> tuple[str, str] | None:
+    low = label.lower()
+    for name in _known_stations():
+        n = name.lower()
+        if low.startswith(n) and (len(low) == len(n) or not low[len(n)].isalnum()):
+            rest = label[len(n):].lstrip(" ,-")
+            return name, _LEADING_ST.sub("", rest).strip()
+    return None
+
+
 def _key(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().lower()
 
@@ -63,7 +86,7 @@ def normalize(asset_type: str, raw_label: str) -> Asset:
     label = re.sub(r"\s+", " ", raw_label).strip()
     label = aliases["labels"].get(_key(label), label)
 
-    station, location = _split(label)
+    station, location = _match_known(label) or _split(label)
     station = aliases["stations"].get(_key(station), station)
     station = station[:1].upper() + station[1:]
 

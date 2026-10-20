@@ -10,6 +10,8 @@ labels:
 
 stations:
   "Århus": "Aarhus H"
+  "Århus Banegård": "Aarhus H"
+  "Aarhus Banegård": "Aarhus H"
   "Århus H": "Aarhus H"
   "Aarhus": "Aarhus H"
   "Hovedbanegården": "København H"

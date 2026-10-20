@@ -30,7 +30,7 @@ function renderKpis(s) {
   document.getElementById("kpis").replaceChildren(
     kpi("Elevatorer ude af drift nu", s.open_now.elevator),
     kpi("Rulletrapper ude af drift nu", s.open_now.escalator),
-    kpi("Har overskredet DSB's forventede dato", s.open_now.overdue, "blandt dem, der er ude af drift nu"),
+    kpi("Har overskredet DSB's forventede dato", s.open_now.overdue, "DSB's seneste dato, blandt dem der er ude af drift nu"),
     elev.n
       ? kpi("Median reparationstid, elevator", duration(elev.median), `gennemsnit ${duration(elev.mean)}, ${elev.n} afsluttede hændelser`)
       : kpi("Median reparationstid, elevator", "–", "kræver afsluttede hændelser; indsamlingen er netop startet"),

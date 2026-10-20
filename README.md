@@ -49,8 +49,8 @@ make dev          # DynamoDB Local + demo-data; følg instruktionerne
 ## Deploy (AWS via SSO)
 
 ```sh
-aws configure sso --profile elevator     # start-URL: https://groenning.awsapps.com/start
-aws sso login --profile elevator
+aws configure sso --profile Mikkel       # start-URL: https://groenning.awsapps.com/start
+aws sso login --profile Mikkel
 make bootstrap                            # én gang: state-bucket → infra/backend.hcl
 cp infra/terraform.tfvars.example infra/terraform.tfvars   # sæt alert_email
 make init

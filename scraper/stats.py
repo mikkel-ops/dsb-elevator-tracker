@@ -111,7 +111,7 @@ def compute(incidents: list[dict], now: datetime) -> tuple[dict, list[dict]]:
             continue
         if not inc["start_is_lower_bound"] and not inc["estimated"]:
             by_type[inc["asset_type"]].append(_days(inc["start"], inc["end"], now))
-        over = _overrun_days(inc, now)
+        over = _overrun_days(inc, now) if not inc["estimated"] else None
         if over is not None:
             promise["closed_with_promise"] += 1
             promise["late"] += over > 0
@@ -132,10 +132,12 @@ def compute(incidents: list[dict], now: datetime) -> tuple[dict, list[dict]]:
         )
         s["incidents"] += 1
         s["open_now"] += inc["end"] is None
-        start, end = max(_dt(inc["start"]), year_ago), _dt(inc["end"]) or now
+        # Imprecise (e.g. Wayback) ends count only the time we *saw* it down.
+        known_end = inc["last_seen"] if inc["end"] and inc["estimated"] else inc["end"]
+        start, end = max(_dt(inc["start"]), year_ago), _dt(known_end) or now
         if end > start:
             s["days_down_12m"] = round(s["days_down_12m"] + (end - start).total_seconds() / 86400, 1)
-        s["longest_days"] = max(s["longest_days"], _days(inc["start"], inc["end"], now))
+        s["longest_days"] = max(s["longest_days"], _days(inc["start"], known_end, now))
 
     stats = {
         "generated_at": now.isoformat(timespec="seconds"),

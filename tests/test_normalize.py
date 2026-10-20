@@ -22,3 +22,13 @@ def test_station_extraction():
 
 def test_lift_suffix():
     assert normalize("elevator", "Ordrup lift").asset_id == "elevator:ordrup:lift"
+
+
+@pytest.mark.parametrize("label,asset_id", [
+    ("Taastrup st. spor 3-4 gangtunnel", "elevator:taastrup:spor-3-4-gangtunnel"),
+    ("Birkerød Læssevej sti", "elevator:birkeroed:laessevej-sti"),
+    ("Malmparken St. - spor 1", "elevator:malmparken:spor-1"),
+    ("Viby J spor 4 perron D", "elevator:viby-j:spor-4-perron-d"),
+])
+def test_known_station_prefix(label, asset_id):
+    assert normalize("elevator", label).asset_id == asset_id

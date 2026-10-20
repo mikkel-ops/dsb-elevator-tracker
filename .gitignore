@@ -11,3 +11,4 @@ build/
 *.tfvars
 !*.tfvars.example
 infra/backend.hcl
+tfplan

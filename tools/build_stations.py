@@ -19,7 +19,9 @@ from pathlib import Path
 from scraper.normalize import slugify
 
 GTFS_URL = "https://www.rejseplanen.info/labs/GTFS.zip"
-OUT = Path(__file__).resolve().parent.parent / "site" / "data" / "stations.json"
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "site" / "data" / "stations.json"
+NAMES_OUT = ROOT / "scraper" / "station_names.json"
 
 
 def main(zip_path: str | None = None) -> None:
@@ -37,6 +39,8 @@ def main(zip_path: str | None = None) -> None:
                 "lon": round(float(r["stop_lon"]), 5),
             })
     OUT.write_text(json.dumps(dict(sorted(stations.items())), ensure_ascii=False, separators=(",", ":")))
+    # Names only, for scraper/normalize.py's station matching.
+    NAMES_OUT.write_text(json.dumps(sorted(s["name"] for s in stations.values()), ensure_ascii=False))
     print(f"{len(stations)} stations -> {OUT}")
 
 

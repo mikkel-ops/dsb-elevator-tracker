@@ -24,6 +24,9 @@ from .parse import ELEVATOR, ESCALATOR, Row
 
 ABSENCES_TO_CLOSE = 2
 MERGE_WINDOW = timedelta(hours=24)
+# After a gap this long between scrapes (e.g. Wayback history -> first live
+# scrape), "two absences in a row" no longer filters noise; close on the first.
+GAP = timedelta(hours=24)
 
 
 @dataclass
@@ -93,7 +96,9 @@ def reconcile(
         if asset_type not in sections_found:
             # Whole section missing: could be a layout change, don't close.
             continue
-        if _mark_absent(table, asset_id, ptr["incident_sk"], now_iso):
+        after_gap = prev_scrape_at is not None and now - datetime.fromisoformat(prev_scrape_at) > GAP
+        needed = 1 if after_gap else ABSENCES_TO_CLOSE
+        if _mark_absent(table, asset_id, ptr["incident_sk"], now_iso, needed):
             summary.closed.append(asset_id)
 
     table.update_item(
@@ -210,7 +215,7 @@ def _reopen(table, asset_id: str, inc: dict, row: Row, now_iso: str):
     _touch(table, asset_id, inc["SK"], row, now_iso)
 
 
-def _mark_absent(table, asset_id: str, sk: str, now_iso: str) -> bool:
+def _mark_absent(table, asset_id: str, sk: str, now_iso: str, needed: int) -> bool:
     """Count one absence; close the incident on the Nth. Returns True if closed."""
     key = {"PK": f"ASSET#{asset_id}", "SK": sk}
     resp = table.update_item(
@@ -220,7 +225,7 @@ def _mark_absent(table, asset_id: str, sk: str, now_iso: str) -> bool:
         ReturnValues="ALL_NEW",
     )
     inc = resp["Attributes"]
-    if inc["missing_count"] < ABSENCES_TO_CLOSE:
+    if inc["missing_count"] < needed:
         return False
     table.update_item(
         Key=key,

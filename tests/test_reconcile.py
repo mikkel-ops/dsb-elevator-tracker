@@ -101,3 +101,19 @@ def test_wide_start_window_is_lower_bound(table):
     reconcile(table, [row(), other()], BOTH, T0)
     bis = next(i for i in incidents(table) if i["station"] == "Bispebjerg")
     assert bis["start_is_lower_bound"] and bis["estimated"]
+
+
+def test_closes_on_first_absence_after_gap(table):
+    reconcile(table, [row(), other()], BOTH, T0 - timedelta(days=90), source="wayback")
+    s = reconcile(table, [other()], BOTH, T0)
+    assert s.closed == ["elevator:bispebjerg"]
+
+
+def test_wayback_incidents_excluded_from_promise_stats(table):
+    reconcile(table, [row(expected="2025-01-01"), other()], BOTH, T0 - timedelta(days=60), source="wayback")
+    reconcile(table, [row(expected="2025-01-01"), other()], BOTH, T0 - timedelta(days=30), source="wayback")
+    reconcile(table, [other()], BOTH, T0)
+    stats, _ = compute(incidents(table), T0)
+    assert stats["promises"]["closed_with_promise"] == 0
+    bis = next(s for s in stats["stations"] if s["station"] == "Bispebjerg")
+    assert bis["days_down_12m"] == 30.0  # first to last seen, not to first absent

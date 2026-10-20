@@ -1,4 +1,4 @@
-AWS_PROFILE ?= elevator
+AWS_PROFILE ?= Mikkel
 export AWS_PROFILE
 TF = terraform -chdir=infra
 
