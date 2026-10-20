@@ -1,10 +1,8 @@
 // Shared helpers. All API data is rendered with textContent (never innerHTML),
 // since labels come straight from DSB's free text.
 
-export const API = location.port === "8080" ? "http://localhost:8000" : "";
-
 export async function api(path) {
-  const res = await fetch(API + path);
+  const res = await fetch(path);
   if (!res.ok) throw new Error(`${path}: ${res.status}`);
   return res.json();
 }
@@ -47,8 +45,6 @@ export function duration(days, lowerBound = false) {
   return lowerBound ? `mindst ${s}` : s;
 }
 
-export const TYPE = { elevator: "Elevator", escalator: "Rulletrappe" };
-
 export function statusCell(inc) {
   if (inc.overdue) return el("span", { class: "status-critical" }, "Lovet dato overskredet");
   if (inc.status_kind === "permanent") return "Taget ud af drift permanent";
@@ -62,8 +58,8 @@ export async function evidenceLinks(at, label) {
   try {
     const ev = await api(`/api/evidence?at=${encodeURIComponent(at)}`);
     const links = [];
-    if (ev.screenshot) links.push(el("a", { href: API + ev.screenshot.url, target: "_blank", rel: "noopener" }, `Screenshot (${fmtDateTime(ev.screenshot.at)})`));
-    if (ev.html) links.push(el("a", { href: API + ev.html.url, target: "_blank", rel: "noopener" }, "Rå HTML"));
+    if (ev.screenshot) links.push(el("a", { href: ev.screenshot.url, target: "_blank", rel: "noopener" }, `Screenshot (${fmtDateTime(ev.screenshot.at)})`));
+    if (ev.html) links.push(el("a", { href: ev.html.url, target: "_blank", rel: "noopener" }, "Rå HTML"));
     box.replaceChildren(el("span", {}, `${label}: `), ...(links.length ? links : [el("span", { class: "muted" }, "ingen dokumentation")]));
   } catch {
     box.replaceChildren(el("span", { class: "muted" }, `${label}: kunne ikke hentes`));

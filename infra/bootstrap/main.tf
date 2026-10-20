@@ -1,8 +1,10 @@
 # One-time bootstrap: creates the S3 bucket that holds Terraform remote state
-# for infra/. This config itself uses local state (commit-free, see .gitignore).
+# for infra/, and writes ../backend.hcl for `make init`.
 #
-#   cd infra/bootstrap && terraform init && terraform apply
-#   -> writes ../backend.hcl used by `terraform init -backend-config=backend.hcl`
+# Chicken-and-egg: the very first run must use local state - comment out the
+# backend block, `init && apply`, then restore it and migrate:
+#   terraform init -backend-config=../backend.hcl \
+#     -backend-config=key=bootstrap/terraform.tfstate -migrate-state
 
 terraform {
   required_version = ">= 1.10" # S3-native state locking (use_lockfile)
@@ -10,6 +12,7 @@ terraform {
     aws   = { source = "hashicorp/aws", version = "~> 6.0" }
     local = { source = "hashicorp/local", version = "~> 2.5" }
   }
+  backend "s3" {}
 }
 
 variable "region" {

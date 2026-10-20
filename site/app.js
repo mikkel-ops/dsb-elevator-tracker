@@ -1,4 +1,4 @@
-import { API, TYPE, api, duration, el, fmtDate, fmtDateTime, num, showError, statusCell } from "./common.js";
+import { api, duration, el, fmtDate, fmtDateTime, num, showError, statusCell } from "./common.js";
 
 const [stats, current, stations] = await Promise.all([
   api("/api/stats"),
@@ -9,7 +9,6 @@ const [stats, current, stations] = await Promise.all([
   throw err;
 });
 
-document.getElementById("csv").href = API + "/api/export.csv";
 renderKpis(stats);
 renderCurrent(current);
 renderMap(current, stations);
@@ -26,25 +25,24 @@ function kpi(label, value, note) {
 }
 
 function renderKpis(s) {
-  const elev = s.repair_days.elevator ?? { n: 0 };
+  const r = s.repair_days;
+  const pending = "kræver elevatorer, vi har set gå i stykker og blive repareret";
   document.getElementById("kpis").replaceChildren(
-    kpi("Elevatorer ude af drift nu", s.open_now.elevator),
-    kpi("Rulletrapper ude af drift nu", s.open_now.escalator),
+    kpi("Elevatorer ude af drift nu", s.open_now.total),
     kpi("Har overskredet DSB's forventede dato", s.open_now.overdue, "DSB's seneste dato, blandt dem der er ude af drift nu"),
-    elev.n
-      ? kpi("Median reparationstid, elevator", duration(elev.median), `gennemsnit ${duration(elev.mean)}, ${elev.n} afsluttede hændelser`)
-      : kpi("Median reparationstid, elevator", "–", "kræver afsluttede hændelser; indsamlingen er netop startet"),
+    kpi("Median reparationstid", r.n ? duration(r.median) : "–", r.n ? `${r.n} afsluttede hændelser` : pending),
+    kpi("Gennemsnitlig reparationstid", r.n ? duration(r.mean) : "–", r.n ? `længste ${duration(r.max)}` : pending),
   );
 }
 
 function renderCurrent(items) {
   document.getElementById("current-sub").textContent =
-    `${items.length} elevatorer og rulletrapper står på DSB's liste. Sorteret efter, hvor længe de har været ude af drift.`;
+    `${items.length} elevatorer står på DSB's liste. Sorteret efter, hvor længe de har været ude af drift.`;
   const rows = items.map((i) =>
     el("tr", {},
       el("td", {},
         el("a", { href: `station.html?s=${encodeURIComponent(i.station_slug)}` }, i.station),
-        el("div", { class: "type" }, [TYPE[i.asset_type], i.location].filter(Boolean).join(" · "))),
+        el("div", { class: "type" }, i.location)),
       el("td", { class: "num" }, duration(i.days_down, i.start_is_lower_bound)),
       el("td", {}, i.latest_expected ? fmtDate(i.latest_expected) : "–",
         i.expected_changes ? el("div", { class: "type" }, `rykket ${i.expected_changes}×`) : null),
@@ -78,7 +76,7 @@ function renderMap(items, stations) {
       el("strong", {}, incs[0].station),
       el("ul", { style: "padding-left: 16px; margin: 4px 0" },
         incs.map((i) => el("li", {},
-          `${TYPE[i.asset_type]} ${i.location}: ${duration(i.days_down, i.start_is_lower_bound)}`,
+          `${i.location || "Elevator"}: ${duration(i.days_down, i.start_is_lower_bound)}`,
           i.overdue ? " (lovet dato overskredet)" : ""))),
       el("a", { href: `station.html?s=${encodeURIComponent(slug)}` }, "Se historik"));
     marker.bindPopup(popup);
@@ -173,9 +171,9 @@ function renderPromises(p) {
       p.overrun_days.n ? ` Når datoen blev overskredet, var det med ${duration(p.overrun_days.median)} i median.` : ""));
     if (p.date_moved) parts.push(el("p", {}, `DSB rykkede den forventede dato mindst én gang i ${p.date_moved} af hændelserne.`));
   } else {
-    parts.push(el("p", { class: "muted" }, "Der er endnu ingen afsluttede hændelser at sammenligne med. Tallene kommer, efterhånden som elevatorerne kommer i drift igen."));
+    parts.push(el("p", { class: "muted" }, "Der er endnu ingen afsluttede hændelser at sammenligne med. Indsamlingen startede 20. oktober 2026, og tallene kommer, efterhånden som vi ser elevatorer blive repareret."));
   }
   parts.push(el("p", {}, `Lige nu er `, el("strong", {}, String(p.open_past_promise)),
-    ` elevatorer og rulletrapper stadig ude af drift, selvom datoen, DSB først oplyste, er passeret.`));
+    ` elevatorer stadig ude af drift, selvom datoen, DSB først oplyste, er passeret.`));
   box.replaceChildren(...parts);
 }

@@ -13,6 +13,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from datetime import datetime
 
 import boto3
@@ -22,12 +23,8 @@ from playwright.sync_api import sync_playwright
 URL = "https://www.dsb.dk/trafikinformation/elevatorer/"
 CONTENT = 'section[aria-label="Stations information"]'
 # CookieInformation's banner; we decline rather than hide it.
-DECLINE = [
-    "#declineButton",
-    "button.coi-banner__decline",
-    "button:has-text('Afvis alle')",
-    "button:has-text('Kun nødvendige')",
-]
+DECLINE_BUTTON = "#declineButton, button.coi-banner__decline"
+DECLINE_TEXT = re.compile("Afvis alle|Kun nødvendige")
 # Chromium flags needed inside Lambda's sandbox-less, /tmp-only environment.
 CHROMIUM_ARGS = [
     "--no-sandbox", "--no-zygote", "--single-process",
@@ -49,12 +46,11 @@ def capture() -> tuple[bytes, str]:
             )
             page.goto(URL, wait_until="domcontentloaded", timeout=45_000)
             page.wait_for_selector(CONTENT, timeout=30_000)
-            for sel in DECLINE:
-                try:
-                    page.locator(sel).first.click(timeout=2_000)
-                    break
-                except PlaywrightTimeout:
-                    continue
+            decline = page.locator(DECLINE_BUTTON).or_(page.get_by_role("button", name=DECLINE_TEXT))
+            try:
+                decline.first.click(timeout=3_000)
+            except PlaywrightTimeout:
+                log.warning("cookie banner not found; screenshot taken anyway")
             page.wait_for_timeout(1_000)
             png = page.screenshot(full_page=True, type="png")
             return png, page.content()
@@ -62,7 +58,7 @@ def capture() -> tuple[bytes, str]:
             browser.close()
 
 
-def lambda_handler(event, context):
+def handler(event, context):
     at = datetime.fromisoformat(event["at"])
     png, html = capture()
     bucket = os.environ["RAW_BUCKET"]

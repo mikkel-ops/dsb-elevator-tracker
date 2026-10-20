@@ -1,9 +1,9 @@
-import os
 from pathlib import Path
 
-import boto3
 import pytest
 from moto import mock_aws
+
+from elevator_tracker import db
 
 FIXTURE = Path(__file__).parent / "fixtures" / "2026-10-20.html"
 
@@ -15,26 +15,10 @@ def html():
 
 @pytest.fixture
 def table(monkeypatch):
-    monkeypatch.setenv("AWS_DEFAULT_REGION", "eu-north-1")
-    monkeypatch.setenv("AWS_ACCESS_KEY_ID", "test")
-    monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "test")
-    monkeypatch.setenv("TABLE_NAME", "test")
-    monkeypatch.delenv("RAW_BUCKET", raising=False)
-    monkeypatch.delenv("ALERT_TOPIC_ARN", raising=False)
+    for k, v in {"AWS_DEFAULT_REGION": "eu-north-1", "AWS_ACCESS_KEY_ID": "test",
+                 "AWS_SECRET_ACCESS_KEY": "test", "TABLE_NAME": "test"}.items():
+        monkeypatch.setenv(k, v)
+    for k in ("RAW_BUCKET", "ALERT_TOPIC_ARN", "SCREENSHOT_FUNCTION"):
+        monkeypatch.delenv(k, raising=False)
     with mock_aws():
-        ddb = boto3.resource("dynamodb")
-        gsi = lambda n: {
-            "IndexName": n,
-            "KeySchema": [{"AttributeName": f"{n}PK", "KeyType": "HASH"},
-                          {"AttributeName": f"{n}SK", "KeyType": "RANGE"}],
-            "Projection": {"ProjectionType": "ALL"},
-        }
-        yield ddb.create_table(
-            TableName="test",
-            KeySchema=[{"AttributeName": "PK", "KeyType": "HASH"},
-                       {"AttributeName": "SK", "KeyType": "RANGE"}],
-            AttributeDefinitions=[{"AttributeName": a, "AttributeType": "S"}
-                                  for a in ["PK", "SK", "GSI1PK", "GSI1SK", "GSI2PK", "GSI2SK"]],
-            GlobalSecondaryIndexes=[gsi("GSI1"), gsi("GSI2")],
-            BillingMode="PAY_PER_REQUEST",
-        )
+        yield db.create_table("test")

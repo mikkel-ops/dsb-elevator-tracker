@@ -1,3 +1,5 @@
+# CloudFront: site, /api/*, and evidence (/raw/*, /screenshots/*) on one domain.
+
 resource "aws_cloudfront_origin_access_control" "s3" {
   name                              = "${var.name}-s3"
   origin_access_control_origin_type = "s3"

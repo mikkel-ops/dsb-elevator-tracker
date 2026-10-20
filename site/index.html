@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hvor længe har elevatoren været ude af drift?</title>
-  <meta name="description" content="Uafhængig statistik over elevatorer og rulletrapper ude af drift på DSB's stationer.">
+  <meta name="description" content="Uafhængig statistik over elevatorer ude af drift på DSB's stationer.">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <link rel="stylesheet" href="style.css">
@@ -18,8 +18,8 @@
   </nav>
   <header class="site">
     <h1>Hvor længe har elevatoren været ude af drift?</h1>
-    <p>Uafhængig opsamling af DSB's liste over elevatorer og rulletrapper, der er ude af drift.
-      DSB viser kun, hvad der er i stykker lige nu. Vi gemmer listen hver time, så det bliver muligt at se, hvor længe tingene tager.</p>
+    <p>Uafhængig opsamling af DSB's liste over elevatorer, der er ude af drift.
+      DSB viser kun, hvad der er i stykker lige nu. Vi gemmer listen hver time, så det bliver muligt at se, hvor længe en reparation tager. Data er indsamlet siden 20. oktober 2026.</p>
   </header>
 
   <section class="kpis" id="kpis" aria-label="Nøgletal"></section>
@@ -28,7 +28,7 @@
   <p class="sub" id="current-sub"></p>
   <div class="split">
     <div>
-      <div id="map" role="img" aria-label="Kort over stationer med elevatorer eller rulletrapper ude af drift"></div>
+      <div id="map" role="img" aria-label="Kort over stationer med elevatorer ude af drift"></div>
       <div class="legend" aria-hidden="true">
         <span><span class="dot" style="background: var(--series-1)"></span>Ude af drift</span>
         <span><span class="dot" style="background: var(--critical)"></span>Lovet dato overskredet</span>
@@ -43,7 +43,7 @@
   </div>
 
   <h2>Stationer, der har været længst ude af drift</h2>
-  <p class="sub">Samlet antal dage, hvor mindst én elevator eller rulletrappe har været ude af drift, seneste 12 måneder. Flere enheder på samme station tæller hver for sig.</p>
+  <p class="sub">Samlet antal dage med en elevator ude af drift, seneste 12 måneder. Har en station flere elevatorer, tæller hver for sig.</p>
   <div class="card chart" id="stations-chart"></div>
 
   <h2>Holder DSB's forventede dato?</h2>
@@ -54,10 +54,11 @@
     <ul>
       <li>Kilden er <a href="https://www.dsb.dk/trafikinformation/elevatorer/">dsb.dk/trafikinformation/elevatorer</a>, som hentes hver time. Hver hentning gemmes som rå HTML. Når listen ændrer sig, og mindst én gang i døgnet, tages der også et screenshot. Begge dele kan ses i <a href="arkiv.html">arkivet</a> og ved hver hændelse.</li>
       <li>En hændelse starter, første gang en elevator står på listen, og slutter, første gang den er væk. For at undgå støj skal den være væk ved to hentninger i træk. Hvis den kommer tilbage inden for 24 timer, regnes det som samme hændelse.</li>
-      <li>Hændelser, der allerede var i gang, da indsamlingen startede, har ukendt startdato. De vises som "mindst" og indgår ikke i gennemsnit og median.</li>
+      <li>Vi bruger kun data, vi selv har indsamlet, fra 20. oktober 2026. Elevatorer, der allerede var i stykker, da indsamlingen startede, har ukendt startdato. De vises som "mindst" og indgår ikke i gennemsnit og median. Medianen bliver derfor mere præcis, jo længere indsamlingen kører.</li>
+      <li>Kun elevatorer tælles med. Rulletrapper står også på DSB's side, men en defekt rulletrappe kan stadig bruges som trappe.</li>
       <li>Data er kun så præcise som DSB's egen, manuelt opdaterede liste. At en elevator forsvinder fra listen, betyder ikke nødvendigvis, at den virker.</li>
       <li>"Lovet dato" er den første "forventes i drift den …"-dato, vi har set for hændelsen. Hvis DSB rykker datoen, tæller vi det også.</li>
-      <li>Siden er ikke tilknyttet DSB. Kildekoden er åben på <a href="https://github.com/mikkel-ops/dsb-elevator-tracker">GitHub</a>, og alle data kan <a href="/api/export.csv" id="csv">hentes som CSV</a>.</li>
+      <li>Siden er ikke tilknyttet DSB. Kildekoden er åben på <a href="https://github.com/mikkel-ops/dsb-elevator-tracker">GitHub</a>, og alle data kan <a href="/api/export.csv">hentes som CSV</a>.</li>
     </ul>
   </div>
 

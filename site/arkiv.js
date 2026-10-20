@@ -1,4 +1,4 @@
-import { API, api, el, fmtDateTime, showError } from "./common.js";
+import { api, el, fmtDateTime, showError } from "./common.js";
 
 const input = document.getElementById("day");
 const tbody = document.getElementById("snapshots");
@@ -29,13 +29,13 @@ async function load() {
 
 function row(s) {
   const shot = s.screenshot
-    ? el("a", { href: API + s.screenshot.url, target: "_blank", rel: "noopener" }, "Åbn")
+    ? el("a", { href: s.screenshot.url, target: "_blank", rel: "noopener" }, "Åbn")
     : el("span", { class: "muted" }, "–");
   if (s.screenshot) {
     const btn = el("button", { type: "button" }, "Vis");
     btn.addEventListener("click", () => preview.replaceChildren(
       el("p", { class: "sub" }, `Screenshot ${fmtDateTime(s.screenshot.at)}`, s.screenshot.sha256 ? ` · SHA-256 ${s.screenshot.sha256}` : ""),
-      el("div", { class: "evidence" }, el("img", { src: API + s.screenshot.url, alt: `DSB's side ${fmtDateTime(s.screenshot.at)}` }))));
+      el("div", { class: "evidence" }, el("img", { src: s.screenshot.url, alt: `DSB's side ${fmtDateTime(s.screenshot.at)}` }))));
     return tr(s, el("span", { class: "evidence" }, shot, btn));
   }
   return tr(s, shot);
@@ -46,6 +46,6 @@ function tr(s, shotCell) {
     el("td", {}, fmtDateTime(s.at)),
     el("td", { class: "num" }, s.rows),
     el("td", {}, s.dsb_updated ?? "–"),
-    el("td", {}, s.html ? el("a", { href: API + s.html.url, target: "_blank", rel: "noopener" }, "Åbn") : "–"),
+    el("td", {}, s.html ? el("a", { href: s.html.url, target: "_blank", rel: "noopener" }, "Åbn") : "–"),
     el("td", {}, shotCell));
 }

@@ -25,7 +25,7 @@ variable "api_reserved_concurrency" {
 }
 
 variable "build_dir" {
-  description = "Where scripts/build.sh puts the Lambda zips."
+  description = "Where `make build` puts lambda.zip."
   type        = string
   default     = "../build"
 }

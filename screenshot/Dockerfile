@@ -1,15 +1,15 @@
-# Playwright's official image ships Chromium + all system deps; we only add
-# the Lambda Runtime Interface Client. Build context is the repo root.
-FROM mcr.microsoft.com/playwright/python:v1.64.0-noble
+# Slim image: Python + Chromium headless shell only (no Firefox/WebKit),
+# plus the Lambda Runtime Interface Client. Build context: screenshot/.
+FROM python:3.12-slim-bookworm
 
-RUN pip install --no-cache-dir --break-system-packages awslambdaric boto3 playwright==1.64.0
-
-# Lambda's filesystem is read-only except /tmp.
-ENV HOME=/tmp \
-    PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright \
+    HOME=/tmp
+RUN pip install --no-cache-dir awslambdaric boto3 playwright==1.64.0 \
+ && playwright install --with-deps --only-shell chromium \
+ && rm -rf /var/lib/apt/lists/* /root/.cache
 
 WORKDIR /var/task
-COPY screenshot/ screenshot/
+COPY handler.py .
 
 ENTRYPOINT ["python", "-m", "awslambdaric"]
-CMD ["screenshot.handler.lambda_handler"]
+CMD ["handler.handler"]

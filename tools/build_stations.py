@@ -1,4 +1,4 @@
-"""Build site/data/stations.json (station slug -> name + coordinates) from
+"""Build src/elevator_tracker/stations.json (station slug -> name + coordinates) from
 Rejseplanen's GTFS feed. Rail stations are the stops whose id is a Danish
 UIC code (0000086xxxxx). Re-run when stations change:
 
@@ -16,12 +16,9 @@ import urllib.request
 import zipfile
 from pathlib import Path
 
-from scraper.normalize import slugify
+from elevator_tracker.stations import STATIONS_PATH, slugify
 
 GTFS_URL = "https://www.rejseplanen.info/labs/GTFS.zip"
-ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "site" / "data" / "stations.json"
-NAMES_OUT = ROOT / "scraper" / "station_names.json"
 
 
 def main(zip_path: str | None = None) -> None:
@@ -38,10 +35,8 @@ def main(zip_path: str | None = None) -> None:
                 "lat": round(float(r["stop_lat"]), 5),
                 "lon": round(float(r["stop_lon"]), 5),
             })
-    OUT.write_text(json.dumps(dict(sorted(stations.items())), ensure_ascii=False, separators=(",", ":")))
-    # Names only, for scraper/normalize.py's station matching.
-    NAMES_OUT.write_text(json.dumps(sorted(s["name"] for s in stations.values()), ensure_ascii=False))
-    print(f"{len(stations)} stations -> {OUT}")
+    STATIONS_PATH.write_text(json.dumps(dict(sorted(stations.items())), ensure_ascii=False, separators=(",", ":")))
+    print(f"{len(stations)} stations -> {STATIONS_PATH}")
 
 
 if __name__ == "__main__":

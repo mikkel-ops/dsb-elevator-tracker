@@ -29,13 +29,13 @@ resource "terraform_data" "screenshot_image" {
   triggers_replace = [local.screenshot_uri]
 
   provisioner "local-exec" {
-    working_dir = "${path.module}/.."
+    working_dir = "${path.module}/../screenshot"
     command     = <<-EOT
       set -e
       aws ecr get-login-password --region ${var.region} \
         | docker login --username AWS --password-stdin ${split("/", aws_ecr_repository.screenshot.repository_url)[0]}
       # --provenance=false: Lambda rejects multi-manifest (attestation) images.
-      docker build --platform linux/arm64 --provenance=false -t ${local.screenshot_uri} -f screenshot/Dockerfile .
+      docker build --platform linux/arm64 --provenance=false -t ${local.screenshot_uri} .
       docker push ${local.screenshot_uri}
     EOT
   }
@@ -77,7 +77,7 @@ resource "aws_lambda_function" "screenshot" {
   package_type  = "Image"
   image_uri     = local.screenshot_uri
   architectures = ["arm64"]
-  memory_size   = 2048
+  memory_size   = 1024
   timeout       = 120
 
   environment {
